@@ -12,8 +12,7 @@ import com.xznn.kankanzhihu.R;
 import com.xznn.kankanzhihu.adapter.PostsAdapter;
 import com.xznn.kankanzhihu.api.APIUrl;
 import com.xznn.kankanzhihu.bean.PostsBean;
-import com.xznn.kankanzhihu.callback.GetpostsBeanCallBack;
-import com.zhy.http.okhttp.OkHttpUtils;
+import com.xznn.kankanzhihu.callback.GetPostsBeanCallBack;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -42,9 +41,11 @@ public class PostsActivity extends AppCompatActivity {
             super.handleMessage(msg);
             switch (msg.what) {
                 case GET_POSTSBEAN:
-                    Logger.d("=== 变量：(List<PostsBean>)msg.obj = " + (List<PostsBean>) msg.obj);
+                    List<PostsBean> list = (List<PostsBean>) msg.obj;
+
+                    Logger.d("=== 变量：(List<PostsBean>)msg.obj = " + list);
                     mRvView.setLayoutManager(new LinearLayoutManager(PostsActivity.this, LinearLayoutManager.VERTICAL, true));
-                    mRvView.setAdapter(new PostsAdapter((List<PostsBean>) msg.obj, PostsActivity.this));
+                    mRvView.setAdapter(new PostsAdapter(list, PostsActivity.this));
                     break;
             }
         }
@@ -58,9 +59,7 @@ public class PostsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_posts);
         ButterKnife.bind(this);
 
-
-         initData();
-
+        initData();
 
         mMyHandle = new MyHandle(new WeakReference<PostsActivity>(this));
 
@@ -70,11 +69,14 @@ public class PostsActivity extends AppCompatActivity {
         long currentTimeMillis = System.currentTimeMillis();
         Logger.d("=== 变量：currentTimeMillis  = " + currentTimeMillis);
 
-        String url = APIUrl.GET_POSTS +"/" +currentTimeMillis;
+//        String url = APIUrl.GET_POSTS +"/" +currentTimeMillis;
+        final String url = APIUrl.GET_POSTS;
+
+
         OkHttpUtils.get()//
                 .url(url)//
                 .build()//
-                .execute(new GetpostsBeanCallBack() {
+                .execute(new GetPostsBeanCallBack() {
 
                     @Override
                     public void onError(Call call, Exception e, int id) {
@@ -84,7 +86,7 @@ public class PostsActivity extends AppCompatActivity {
 
                     @Override
                     public void onResponse(List<PostsBean> response, int id) {
-//                        Logger.d(id + "=== 变量：response = " + response  );
+//                        Logger.d("=== 变量：response = " + response);
                         mMyHandle.obtainMessage(GET_POSTSBEAN, response).sendToTarget();
                     }
                 });

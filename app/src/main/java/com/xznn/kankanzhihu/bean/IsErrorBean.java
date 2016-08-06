@@ -14,15 +14,26 @@ public class IsErrorBean {
 
     private int count;
     private String error;
-    private String result;
+    private String posts;
 
-    public String getResult() {
-        return result;
+//    private List posts;
+
+    public String getPosts() {
+        return posts;
     }
 
-    public void setResult(String result) {
-        this.result = result;
+    public void setPosts(String posts) {
+        this.posts = posts;
     }
+
+//
+//    public ArrayList getPosts() {
+//        return posts;
+//    }
+//
+//    public void setPosts(ArrayList posts) {
+//        this.posts = posts;
+//    }
 
     public int getCount() {
         return count;
@@ -39,4 +50,23 @@ public class IsErrorBean {
     public void setError(String error) {
         this.error = error;
     }
+
+//    @Override
+//    public String toString() {
+//        return "IsErrorBean{" +
+//                "count=" + count +
+//                ", error='" + error + '\'' +
+//                ", posts='" + posts + '\'' +
+//                '}';
+//    }
+
+
+//    @Override
+//    public String toString() {
+//        return "IsErrorBean{" +
+//                "count=" + count +
+//                ", error='" + error + '\'' +
+//                ", posts=" + posts +
+//                '}';
+//    }
 }

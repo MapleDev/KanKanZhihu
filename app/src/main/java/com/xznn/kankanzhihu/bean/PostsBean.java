@@ -17,7 +17,6 @@ public class PostsBean {
      * publishtime : 1469761200
      */
 
-
     private int count;
     private String date;
     private String excerpt;

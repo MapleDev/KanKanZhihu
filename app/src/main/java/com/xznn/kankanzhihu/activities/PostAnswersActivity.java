@@ -14,15 +14,12 @@ import com.xznn.kankanzhihu.adapter.PostsAdapter;
 import com.xznn.kankanzhihu.api.APIUrl;
 import com.xznn.kankanzhihu.bean.AnswersBean;
 import com.xznn.kankanzhihu.bean.PostsBean;
-import com.xznn.kankanzhihu.callback.AnswersBeanCallBack;
-import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.Call;
 
 public class PostAnswersActivity extends AppCompatActivity {
 
@@ -62,7 +59,7 @@ public class PostAnswersActivity extends AppCompatActivity {
         setContentView(R.layout.activity_post_answers);
         ButterKnife.bind(this);
 
-        initData();
+//        initData();
 
         mMyHandle = new MyHandle(new WeakReference<PostAnswersActivity>(this));
 
@@ -80,23 +77,23 @@ public class PostAnswersActivity extends AppCompatActivity {
 
         String url = String.format(APIUrl.GET_POST_ANSWERS, name, date);
         Logger.d("=== 变量：url = " + url);
-        OkHttpUtils.get()//
-                .url(url)//
-                .build()//
-                .execute(new AnswersBeanCallBack() {
-
-                    @Override
-                    public void onError(Call call, Exception e, int id) {
-                        Logger.e("=== 变量：Wrong:id = " + id);
-
-                    }
-
-                    @Override
-                    public void onResponse(List<AnswersBean> response, int id) {
-//                        Logger.d(id + "=== 变量：response = " + response  );
-                        mMyHandle.obtainMessage(GET_POST_ANSWERS, response).sendToTarget();
-                    }
-                });
+//        OkHttpUtils.get()//
+//                .url(url)//
+//                .build()//
+//                .execute(new AnswersBeanCallBack() {
+//
+//                    @Override
+//                    public void onError(Call call, Exception e, int id) {
+//                        Logger.e("=== 变量：Wrong:id = " + id);
+//
+//                    }
+//
+//                    @Override
+//                    public void onResponse(List<AnswersBean> response, int id) {
+//                        Logger.d("=== 变量：response = " + response  );
+//                        mMyHandle.obtainMessage(GET_POST_ANSWERS, response).sendToTarget();
+//                    }
+//                });
 
 
     }
