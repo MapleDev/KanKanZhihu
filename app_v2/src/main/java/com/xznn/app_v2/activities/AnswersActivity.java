@@ -68,8 +68,6 @@ public class AnswersActivity extends AppCompatActivity {
         // 使用 Volley Get Json
         getJson(url);
 
-
-
     }
 
     public void getJson(String url) {
