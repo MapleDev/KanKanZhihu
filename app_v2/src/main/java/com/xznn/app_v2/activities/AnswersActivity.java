@@ -94,7 +94,7 @@ public class AnswersActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
 //                VolleyLog.d(TAG, "Error: " + error.getMessage());
-                Logger.d("=== 变量：Error = " + error.getMessage());
+                Logger.e("=== 变量：Error = " + error.getMessage());
             }
         });
 
@@ -109,7 +109,6 @@ public class AnswersActivity extends AppCompatActivity {
 //            throw new IOException("服务器提出了一个问题：" + answerBean.getError());
         }
         List<AnswerBean.AnswersBean> answers = answerBean.getAnswers();
-        Logger.w("===1 变量：answers = " + answers);
         EventBus.getDefault().post(answers);
     }
 

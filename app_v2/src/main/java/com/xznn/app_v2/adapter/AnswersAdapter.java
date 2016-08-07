@@ -9,9 +9,11 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.android.volley.toolbox.ImageLoader;
+import com.orhanobut.logger.Logger;
+import com.xznn.app_v2.AppController;
 import com.xznn.app_v2.R;
-import com.xznn.app_v2.activities.AnswersActivity;
+import com.xznn.app_v2.activities.ArticalActivity;
 import com.xznn.app_v2.bean.AnswerBean;
 
 import java.util.List;
@@ -45,18 +47,32 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.VH> {
     @Override
     public void onBindViewHolder(VH holder, final int position) {
 
-        AnswerBean.AnswersBean answersBean = mAnswersBeen.get(position);
-        Glide.with(mContext).load(answersBean.getAvatar()).into(sViewHolder.mIvPic);
+        final AnswerBean.AnswersBean answersBean = mAnswersBeen.get(position);
+//        Glide.with(mContext).load(answersBean.getAvatar()).into(sViewHolder.mIvPic);
+//        AppController.getInstance().getImageLoader().get(answersBean.getAvatar(), new ImageLoader.ImageListener() {
+//            @Override
+//            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
+//                sViewHolder.mIvPic.setImageBitmap(response.getBitmap());
+//            }
+//
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//
+//            }
+//        });
+        AppController.getInstance().getImageLoader().get(answersBean.getAvatar(), ImageLoader.getImageListener(sViewHolder.mIvPic, R.drawable.ic_loading, R.mipmap.ic_launcher));
         sViewHolder.mTvExcerpt.setText(answersBean.getSummary());
         sViewHolder.mTvCount.setText("答主：" + answersBean.getAuthorname());
-        sViewHolder.mTvDate.setText("发布时间：" + answersBean.getTime());
+        sViewHolder.mTvDate.setText("发布时间：" + answersBean.getTime().substring(answersBean.getTime().indexOf(" ")));
 
         sViewHolder.mRlContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mContext, AnswersActivity.class);
-//                intent.putExtra("name", postsBean.getName());
-//                intent.putExtra("date", postsBean.getDate());
+                Intent intent = new Intent(mContext, ArticalActivity.class);
+                Logger.w("=== 变量：answersBean = " + answersBean);
+                intent.putExtra("questionid", answersBean.getQuestionid());
+                intent.putExtra("answerid", answersBean.getAnswerid());
+                intent.putExtra("authorhash", answersBean.getAuthorhash());
                 mContext.startActivity(intent);
             }
         });
