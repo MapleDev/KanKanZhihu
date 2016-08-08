@@ -31,10 +31,8 @@ import butterknife.ButterKnife;
 
 public class AnswersActivity extends AppCompatActivity {
 
-    private static final int GET_POST_ANSWERS = 0x001;
     @BindView(R.id.rv_view)
     RecyclerView mRvView;
-    private Object mJson;
     private String mRespJsonStr;
 
 //    private MyHandle mMyHandle;

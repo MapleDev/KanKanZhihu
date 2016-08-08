@@ -2,14 +2,16 @@ package com.xznn.app_v2.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.android.volley.toolbox.ImageLoader;
+import com.xznn.app_v2.AppController;
 import com.xznn.app_v2.R;
 import com.xznn.app_v2.activities.AnswersActivity;
 import com.xznn.app_v2.bean.PostBean;
@@ -46,12 +48,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.VH> {
     public void onBindViewHolder(VH holder, final int position) {
 
         final PostBean.PostsBean postsBean = mPostsBeen.get(position);
-        Glide.with(mContext).load(postsBean.getPic()).into(sViewHolder.mIvPic);
+        AppController.getInstance().getImageLoader().get(postsBean.getPic(), ImageLoader.getImageListener(sViewHolder.mIvPic, R.mipmap.ic_launcher, R.mipmap.ic_launcher));
+        sViewHolder.mTvExcerpt.setShadowLayer(2,2,2, Color.BLACK);
         sViewHolder.mTvExcerpt.setText(postsBean.getExcerpt());
-        sViewHolder.mTvCount.setText("回复：" + postsBean.getCount());
-        sViewHolder.mTvDate.setText("发布时间：" + postsBean.getDate());
+//        sViewHolder.mTvCount.setText("回复：" + postsBean.getCount());
+//        sViewHolder.mTvDate.setText("发布时间：" + postsBean.getDate());
 
-        sViewHolder.mRlContainer.setOnClickListener(new View.OnClickListener() {
+        sViewHolder.mCardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, AnswersActivity.class);
@@ -82,15 +85,33 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.VH> {
         ImageView mIvPic;
         @BindView(R.id.tv_excerpt)
         TextView mTvExcerpt;
-        @BindView(R.id.tv_count)
-        TextView mTvCount;
-        @BindView(R.id.tv_date)
-        TextView mTvDate;
-        @BindView(R.id.rl_container)
-        RelativeLayout mRlContainer;
+        @BindView(R.id.card_item)
+        CardView mCardView;
 
         ViewHolder(View view) {
             ButterKnife.bind(this, view);
         }
     }
 }
+
+
+/*
+
+    static class VH extends RecyclerView.ViewHolder {
+        ImageView mIvPic;
+        TextView mTvExcerpt;
+        TextView mTvCount;
+        TextView mTvDate;
+        RelativeLayout mRlContainer;
+
+        public VH(View view) {
+            super(view);
+            mIvPic = (ImageView) view.findViewById(R.id.iv_pic);
+            mTvExcerpt = (TextView) view.findViewById(R.id.tv_excerpt);
+            mTvCount = (TextView) view.findViewById(R.id.tv_count);
+            mTvDate = (TextView) view.findViewById(R.id.tv_date);
+            mRlContainer= (RelativeLayout) view.findViewById(R.id.rl_container);
+        }
+    }
+
+* */

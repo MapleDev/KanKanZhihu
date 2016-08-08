@@ -2,16 +2,22 @@ package com.xznn.app_v2.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.android.volley.toolbox.ImageLoader;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
+import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
 import com.orhanobut.logger.Logger;
-import com.xznn.app_v2.AppController;
 import com.xznn.app_v2.R;
 import com.xznn.app_v2.activities.ArticalActivity;
 import com.xznn.app_v2.bean.AnswerBean;
@@ -28,8 +34,6 @@ import butterknife.ButterKnife;
  */
 public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.VH> {
 
-
-    private static ViewHolder sViewHolder;
     private List<AnswerBean.AnswersBean> mAnswersBeen;
     private Context mContext;
 
@@ -41,31 +45,68 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.VH> {
 
     @Override
     public VH onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new VH(View.inflate(mContext, R.layout.item_recycler_view_post, null));
+//        return new VH(View.inflate(mContext, R.layout.item_recycler_view_answer, null));
+        return new VH(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_recycler_view_answer, parent, false));
     }
 
     @Override
     public void onBindViewHolder(VH holder, final int position) {
 
         final AnswerBean.AnswersBean answersBean = mAnswersBeen.get(position);
-//        Glide.with(mContext).load(answersBean.getAvatar()).into(sViewHolder.mIvPic);
-//        AppController.getInstance().getImageLoader().get(answersBean.getAvatar(), new ImageLoader.ImageListener() {
+
+//        AppController.getInstance().getImageLoader().get(answersBean.getAvatar(), ImageLoader.getImageListener(sViewHolder.mIvPic, R.drawable.ic_loading, R.mipmap.ic_launcher));
+//        Glide.with(mContext).load(answersBean.getAvatar()).placeholder(R.drawable.ic_loading).crossFade().into(sViewHolder.mIvPic);
+//        Glide.with(mContext).load(answersBean.getAvatar()).asBitmap().centerCrop().into(new BitmapImageViewTarget(sViewHolder.mIvPic) {
 //            @Override
-//            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate) {
-//                sViewHolder.mIvPic.setImageBitmap(response.getBitmap());
-//            }
-//
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//
+//            protected void setResource(Bitmap resource) {
+//                RoundedBitmapDrawable circularBitmapDrawable = RoundedBitmapDrawableFactory.create(mContext.getResources(), resource);
+//                circularBitmapDrawable.setCircular(true);
+//                sViewHolder.mIvPic.setImageDrawable(circularBitmapDrawable);
 //            }
 //        });
-        AppController.getInstance().getImageLoader().get(answersBean.getAvatar(), ImageLoader.getImageListener(sViewHolder.mIvPic, R.drawable.ic_loading, R.mipmap.ic_launcher));
-        sViewHolder.mTvExcerpt.setText(answersBean.getSummary());
-        sViewHolder.mTvCount.setText("答主：" + answersBean.getAuthorname());
-        sViewHolder.mTvDate.setText("发布时间：" + answersBean.getTime().substring(answersBean.getTime().indexOf(" ")));
 
-        sViewHolder.mRlContainer.setOnClickListener(new View.OnClickListener() {
+        Glide.with(mContext).load(answersBean.getAvatar()).transform(new BitmapTransformation(mContext) {
+
+            @Override protected Bitmap transform(BitmapPool pool, Bitmap toTransform, int outWidth, int outHeight) {
+                return circleCrop(pool, toTransform);
+            }
+
+            private  Bitmap circleCrop(BitmapPool pool, Bitmap source) {
+                if (source == null) return null;
+
+                int size = Math.min(source.getWidth(), source.getHeight());
+                int x = (source.getWidth() - size) / 2;
+                int y = (source.getHeight() - size) / 2;
+
+                // TODO this could be acquired from the pool too
+                Bitmap squared = Bitmap.createBitmap(source, x, y, size, size);
+
+                Bitmap result = pool.get(size, size, Bitmap.Config.ARGB_8888);
+                if (result == null) {
+                    result = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+                }
+
+                Canvas canvas = new Canvas(result);
+                Paint paint = new Paint();
+                paint.setShader(new BitmapShader(squared, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP));
+                paint.setAntiAlias(true);
+                float r = size / 2f;
+                canvas.drawCircle(r, r, r, paint);
+                return result;
+            }
+
+            @Override public String getId() {
+                return getClass().getName();
+            }
+        }).placeholder(R.drawable.ic_loading).crossFade().into(holder.mIvPic);
+
+//        sViewHolder.mIvPic.setTag(position);
+
+        holder.mTvExcerpt.setText(answersBean.getSummary());
+        holder.mTvCount.setText("答主：" + answersBean.getAuthorname());
+        holder.mTvDate.setText("发布时间：" + answersBean.getTime().substring(answersBean.getTime().indexOf(" ")));
+
+        holder.mRlContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, ArticalActivity.class);
@@ -86,14 +127,6 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.VH> {
 
 
     static class VH extends RecyclerView.ViewHolder {
-
-        public VH(View view) {
-            super(view);
-            sViewHolder = new ViewHolder(view);
-        }
-    }
-
-    static class ViewHolder {
         @BindView(R.id.iv_pic)
         ImageView mIvPic;
         @BindView(R.id.tv_excerpt)
@@ -102,11 +135,13 @@ public class AnswersAdapter extends RecyclerView.Adapter<AnswersAdapter.VH> {
         TextView mTvCount;
         @BindView(R.id.tv_date)
         TextView mTvDate;
-        @BindView(R.id.rl_container)
+        @BindView(R.id.card_item)
         RelativeLayout mRlContainer;
 
-        ViewHolder(View view) {
+        public VH(View view) {
+            super(view);
             ButterKnife.bind(this, view);
         }
     }
+
 }

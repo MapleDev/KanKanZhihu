@@ -1,29 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:id="@+id/rl_container"
-                android:padding="9dp">
+<android.support.v7.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    app:cardCornerRadius="3dp"
+    app:cardElevation="8dp"
+    android:id="@+id/card_item"
+    >
 
     <ImageView
         android:id="@+id/iv_pic"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_centerVertical="true"
-        android:layout_marginRight="10dp"
-        android:src="@mipmap/ic_launcher"/>
-
-    <TextView
-        android:id="@+id/tv_excerpt"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/iv_pic"
-        android:maxLines="2"
-        android:text="摘录了『如何评价《幻城》电视剧？』、『为什么历史上云南的存在感很低？』、『受过良好教育的穆斯林女性对伊斯兰教是什么态度？』、『独立居住是一种怎样的体验？』、『没文化有多可怕？』、『为什么少有人同情八达岭野生动物园事件的女主，而多是冷眼咒骂甚至拍手称快的回应？』、『你亲身经历过哪些听起来像段子一样的故事？』、『国内有哪些给人印象深刻的海报？』、『有哪些让你笑到肾抽筋的段子？』、『如何看待英国每日邮报的新闻：‘广州地铁上男子称呼黑人为「黑鬼」被打耳光’？』等问题下的32个答案"/>
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
+        android:paddingBottom="7dp"
+        android:src="@mipmap/ic_launcher"/>
 
+    <!--
     <TextView
         android:id="@+id/tv_count"
+        android:paddingBottom="7dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -33,11 +32,31 @@
 
     <TextView
         android:id="@+id/tv_date"
+        android:paddingBottom="7dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:text="发布时间："
         />
+-->
 
-</RelativeLayout>
+    <TextView
+        android:id="@+id/tv_excerpt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|bottom"
+        android:background="#99085fb4"
+        android:fontFamily="serif"
+        android:maxLines="3"
+        android:textColor="@android:color/white"
+        android:textSize="18dp"/>
+
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center_horizontal|bottom"
+        android:background="@android:color/darker_gray"/>
+</android.support.v7.widget.CardView>

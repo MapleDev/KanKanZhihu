@@ -3,12 +3,11 @@ package com.xznn.app_v2.activities;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,7 +15,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import com.google.gson.Gson;
 import com.orhanobut.logger.Logger;
@@ -29,6 +27,8 @@ import com.xznn.app_v2.utils.HttpUtil;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,10 +38,12 @@ import okhttp3.Response;
 
 public class PostsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-
     private static final int GET_POSTSBEAN = 0x001;
     @BindView(R.id.rv_view)
     RecyclerView mRvView;
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout mSwipeRefresh;
+
     private MyHandle mMyHandle;
 
     @Override
@@ -107,11 +109,12 @@ public class PostsActivity extends AppCompatActivity implements NavigationView.O
         setContentView(R.layout.activity_main);
 
         ButterKnife.bind(this);
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-                initData();
-
+/*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,8 +130,38 @@ public class PostsActivity extends AppCompatActivity implements NavigationView.O
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+*/
 
+        initData();
         mMyHandle = new MyHandle(new WeakReference<PostsActivity>(this));
+
+
+        // 下拉刷新
+        mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                /*new Thread(new Runnable() {
+                    public void run() {
+                        SystemClock.sleep(10000);
+                    }
+                }).start();*/
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mSwipeRefresh.setRefreshing(false);
+
+                            }
+                        });
+                    }
+                }, 5000);
+                Snackbar.make(mRvView, "正在刷新。。。", Snackbar.LENGTH_LONG).show();
+            }
+        });
+
+
     }
 
     private void initData() {
@@ -141,6 +174,8 @@ public class PostsActivity extends AppCompatActivity implements NavigationView.O
             @Override
             public void onFailure(Call call, IOException e) {
                 Logger.w("====== 所在方法：onFailure ======");
+//                Toast.makeText(PostsActivity.this, "网络提出了一个问题。", Toast.LENGTH_SHORT).show();
+                Snackbar.make(mRvView, "网络提出了一个问题 > <", Snackbar.LENGTH_LONG).show();
             }
 
             @Override
@@ -152,17 +187,15 @@ public class PostsActivity extends AppCompatActivity implements NavigationView.O
                 String string = response.body().string();
 //                Logger.d("=== 变量：string = " + string);
                 PostBean postBean = new Gson().fromJson(string, PostBean.class);
-                if(!TextUtils.isEmpty(postBean.getError())) {
-                    Logger.d("服务器提出了一个问题：" + postBean.getError());
-                    throw new IOException("服务器提出了一个问题：" + postBean.getError());
+                if (!TextUtils.isEmpty(postBean.getError())) {
+                    Logger.d("网络提出了一个问题。：" + postBean.getError());
+                    throw new IOException("网络提出了一个问题。：" + postBean.getError());
                 }
                 mMyHandle.obtainMessage(GET_POSTSBEAN, postBean.getPosts()).sendToTarget();
             }
         });
 
     }
-
-
 
 
     private class MyHandle extends Handler {
@@ -182,6 +215,7 @@ public class PostsActivity extends AppCompatActivity implements NavigationView.O
                     Logger.d("=== 变量：(List<PostsBean>)msg.obj = " + list);
                     mRvView.setLayoutManager(new LinearLayoutManager(PostsActivity.this));
                     mRvView.setAdapter(new PostsAdapter(list, PostsActivity.this));
+
                     break;
             }
         }
