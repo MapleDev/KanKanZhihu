@@ -22,6 +22,11 @@ import com.xznn.app_v2.R;
 import com.xznn.app_v2.adapter.PostsAdapter;
 import com.xznn.app_v2.api.APIUrl;
 import com.xznn.app_v2.bean.PostBean;
+import com.xznn.app_v2.retrofit_demo.PostInfo;
+import com.xznn.app_v2.retrofit_demo.PostService;
+import com.xznn.app_v2.retrofit_demo.RetrofitWrapper;
+import com.xznn.app_v2.retrofit_intro.GitHubService;
+import com.xznn.app_v2.retrofit_intro.Repo;
 import com.xznn.app_v2.utils.HttpUtil;
 
 import java.io.IOException;
@@ -35,6 +40,8 @@ import butterknife.ButterKnife;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PostsActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -110,41 +117,44 @@ public class PostsActivity extends AppCompatActivity implements NavigationView.O
 
         ButterKnife.bind(this);
 
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-/*
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-            }
-        });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+//            }
+//        });
+//
+//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+//        drawer.setDrawerListener(toggle);
+//        toggle.syncState();
+//
+//        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+//        navigationView.setNavigationItemSelectedListener(this);
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-*/
 
         initData();
         mMyHandle = new MyHandle(new WeakReference<PostsActivity>(this));
 
 
+        long currentTimeMillis = System.currentTimeMillis();
+
         // 下拉刷新
         mSwipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                /*new Thread(new Runnable() {
-                    public void run() {
-                        SystemClock.sleep(10000);
-                    }
-                }).start();*/
+
+//                new Thread(new Runnable() {
+//                    public void run() {
+//                        SystemClock.sleep(10000);
+//                    }
+//                }).start();
+
                 new Timer().schedule(new TimerTask() {
                     @Override
                     public void run() {
@@ -162,10 +172,60 @@ public class PostsActivity extends AppCompatActivity implements NavigationView.O
         });
 
 
+        // Retrofit
+        //1 ====================================
+        PostService postService = RetrofitWrapper.getInstance().create(PostService.class);
+        retrofit2.Call<PostInfo> postInfoCall = postService.listCount(1);
+        postInfoCall.enqueue(new retrofit2.Callback<PostInfo>() {
+            @Override
+            public void onResponse(retrofit2.Call<PostInfo> call, retrofit2.Response<PostInfo> response) {
+                PostInfo body = response.body();
+                Logger.w("====== 所在方法：onResponse ======" + body.getPosts().toString());
+                Snackbar.make(mRvView, body.getPosts().toString(), Snackbar.LENGTH_LONG).show();
+
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<PostInfo> call, Throwable t) {
+                Logger.d("====== 所在方法：onFailure ======");
+                Snackbar.make(mRvView, t.getMessage(), Snackbar.LENGTH_LONG).show();
+            }
+        });
+
+        //1 ====================================
+
+        //2 ====================================
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://api.github.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        GitHubService service = retrofit.create(GitHubService.class);
+        retrofit2.Call<List<Repo>> listCall = service.listRepos("mapledev");
+        listCall.enqueue(new retrofit2.Callback<List<Repo>>() {
+            @Override
+            public void onResponse(retrofit2.Call<List<Repo>> call, retrofit2.Response<List<Repo>> response) {
+                List<Repo> repos = response.body();
+                for (Repo t : repos) {
+                Logger.w("====== 所在方法：onResponse ======" + t.getName());
+                }
+
+            }
+
+            @Override
+            public void onFailure(retrofit2.Call<List<Repo>> call, Throwable t) {
+                Logger.d("====== 所在方法：onFailure ======");
+            }
+        });
+        //2 ====================================
+    }
+
+    private boolean checknew(long currentTimeMillis) {
+        return true;
     }
 
     private void initData() {
-        long currentTimeMillis = System.currentTimeMillis();
 //        Logger.d("=== 变量：currentTimeMillis  = " + currentTimeMillis);
 //        String url = APIUrl.GET_POSTS +"/" +currentTimeMillis;
 
@@ -212,7 +272,7 @@ public class PostsActivity extends AppCompatActivity implements NavigationView.O
                 case GET_POSTSBEAN:
                     List<PostBean.PostsBean> list = (List<PostBean.PostsBean>) msg.obj;
 
-                    Logger.d("=== 变量：(List<PostsBean>)msg.obj = " + list);
+//                    Logger.d("=== 变量：(List<PostsBean>)msg.obj = " + list);
                     mRvView.setLayoutManager(new LinearLayoutManager(PostsActivity.this));
                     mRvView.setAdapter(new PostsAdapter(list, PostsActivity.this));
 
